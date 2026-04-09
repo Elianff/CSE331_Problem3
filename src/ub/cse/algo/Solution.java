@@ -44,6 +44,14 @@ public class Solution {
         //to sort the clients. If negative, client a is first, and if positive, b
 
         sortedClients.sort((a,b) -> {
+            //FCC clients go first
+            if (a.isFcc && !b.isFcc) return -1;
+            if (!a.isFcc && !b.isFcc) return 1;
+
+            //compare the beta
+            if (a.beta != b.beta)
+                return Float.compare(a.beta, b.beta);
+
             if (b.payment != a.payment) {
                 //effectively: if b.payment>a.payment, return 1, b goes first
                 //if a.payment>b.payment, return -1, a goes first
