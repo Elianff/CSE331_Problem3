@@ -127,8 +127,16 @@ public class Solution {
 
         //increase the bandwidth
         for (int i = 0; i < bandwidths.size(); i++) {
-            if (bandWidthCount[i] > bandwidths.get(i)) {
-                sol.bandwidths.set(i, bandwidths.get(i)+1);
+            if (bandwidths.get(i) == 0) continue;
+
+            int used = bandWidthCount[i];
+            int capacity = bandwidths.get(i);
+
+            if(used > capacity) {
+                //small increase: used=11, capacity=10 -> increase, increase=1
+                //large increase: used=20, capacity=10 -> increase, increase=6
+                int increase = (used - capacity) / 2 + 1;
+                sol.bandwidths.set(i, capacity + increase);
             }
         }
 
