@@ -24,7 +24,7 @@ public class Solution {
     }
 
     /**
-     * Method that returns the calculated 
+     * Method that returns the calculated
      * SolutionObject as found by your algorithm
      *
      * @return SolutionObject containing the paths, priorities and bandwidths
@@ -49,11 +49,6 @@ public class Solution {
             else if (a.isFcc && !b.isFcc) return -1;
             else if (!a.isFcc && b.isFcc) return 1;
 
-
-            //compare the beta
-            else if (a.beta != b.beta)
-                return Float.compare(a.beta, b.beta);
-
             else if (b.payment != a.payment) {
                 //effectively: if b.payment>a.payment, return 1, b goes first
                 //if a.payment>b.payment, return -1, a goes first
@@ -61,9 +56,13 @@ public class Solution {
                 //example: b=100 and a=500 then 100-500=-400, a goes first
                 return b.payment - a.payment;
             }
-            else
-                //if it is equal, need tiebreaker to determine which one is first.
-                return Float.compare(a.alpha, b.alpha);
+
+            //compare the beta
+            else if (a.beta != b.beta)
+                return Float.compare(a.beta, b.beta);
+
+            //if it is equal, need tiebreaker to determine which one is first.
+            return Float.compare(a.alpha, b.alpha);
         });
 
         for (Client client : sortedClients) {
@@ -84,12 +83,18 @@ public class Solution {
                 int[] current = todo.poll();   // take first from queue
                 int node = current[0];         //current looks like {int, int} or {startNode, cost}
 
+                //trying to improve runtime
+                //skip if the path is not better than the one we already found
+                if (current[1] > minCost[node]) continue;
+
                 if (node == client.id)// removing client from the queue
                     break;
 
-
-
                 for (Integer currentNode : graph.get(node)) {//going through all non-client nodes
+                    //trying to improve runtime
+                    //skip nodes with 0 bandwidth
+                    if (bandwidths.get(currentNode) == 0) continue;
+
                     int extra = (bandWidthCount[currentNode] + 1)/ bandwidths.get(currentNode); //+1 because it rounds down
                     int newCost = minCost[node] + 1 + extra;  //increases revenue from 1200...0 to 1300...0
 
@@ -117,6 +122,13 @@ public class Solution {
                 for (int i = 0; i < path.size()-1 ; i++) {//counting bandwidth to calculate new cost for next client
                     bandWidthCount[path.get(i)]++;
                 }
+            }
+        }
+
+        //increase the bandwidth
+        for (int i = 0; i < bandwidths.size(); i++) {
+            if (bandWidthCount[i] > bandwidths.get(i)) {
+                sol.bandwidths.set(i, bandwidths.get(i)+1);
             }
         }
 
